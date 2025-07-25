@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
 import { Calendar, Clock, CheckCircle, List, User } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -9,13 +8,14 @@ const apiBaseUrl = process.env.VITE_BASE_API;
 
 const userInfo = JSON.parse(sessionStorage.getItem("userdata"));
 
-const Card = () => {
+const Card = ({id}) => {
+
   const [employeeData, setEmployeeData] = useState({
     employee: {
-      employee_name: "",
+      user_name: "",
       department_name: "",
-      employee_image: "",
-      employee_id: ""
+      user_image: "",
+      user_id: ""
     },
     leave_balance: {
       total_leave_days: 0,
@@ -27,15 +27,15 @@ const Card = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { id } = useParams();
   axios.defaults.withCredentials = true;
 
   const fetchEmployeeData = async () => {
     console.log("get employee data API hitted")
+    console.log(id, "EMPDATA")
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get(`${apiBaseUrl}/employee_dashboard/`);
+      const res = await axios.get(`${apiBaseUrl}/user/user-dashboard/${userInfo.user_id}/`);
       
       // Safely merge API response with defaults
       setEmployeeData(prev => ({
@@ -106,9 +106,9 @@ const Card = () => {
 
   // Destructure with defaults
   const { 
-    employee_name = "", 
+    user_name = "", 
     department_name = "", 
-    employee_id = "" 
+    user_id = "" 
   } = employeeData.employee || {};
   
   const { 
@@ -128,9 +128,9 @@ const Card = () => {
             <User className="text-blue-600 w-8 h-8" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-800">{employee_name}</h2>
+            <h2 className="text-xl font-bold text-gray-800">{user_name}</h2>
             <p className="text-gray-600">{department_name}</p>
-            <p className="text-gray-500 text-sm mt-1">ID: {employee_id}</p>
+            <p className="text-gray-500 text-sm mt-1">ID: {user_id}</p>
           </div>
         </div>
       </div>

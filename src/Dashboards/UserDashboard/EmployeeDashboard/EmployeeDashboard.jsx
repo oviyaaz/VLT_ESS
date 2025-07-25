@@ -4,8 +4,12 @@ import Clock from "../../UserDashboard/EmployeeDashboard/Clock";
 import Card from "../../UserDashboard/EmployeeDashboard/Card";
 import News from "../../UserDashboard/EmployeeDashboard/News";
 import AttendanceChart from "../../UserDashboard/EmployeeDashboard/AttendanceChart";
+import { useParams } from "react-router-dom";
 
 const EmployeeDashboard = () => {
+  const userData = JSON.parse(sessionStorage.getItem("userdata"));
+  const {id} = useParams
+  console.log("idd", userData.user_id)
   return (
     <div className="p-3 grid gap-3 grid-cols-1 w-full h-full overflow-y-auto">
       {/* Top Row: Clock (left) and Card (right) */}
@@ -14,7 +18,7 @@ const EmployeeDashboard = () => {
           <Clock />
         </div>
         <div className="lg:col-span-3 col-span-1">
-          <Card />
+          <Card id = {userData.user_id}/>
         </div>
       </div>
 

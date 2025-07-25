@@ -57,25 +57,31 @@ const EmployeeHeader = () => {
 
   useEffect(() => {
     const storedUser = JSON.parse(sessionStorage.getItem("userdata") || "{}");
+    console.log("Checking team leader for user_id:", storedUser.user_id);
+    console.log("user_id passed to API:", storedUser.user_id);
+
+
     setUserData(storedUser);
 
-    const checkTeamLeader = async () => {
-      try {
-        const response = await axios.get(`${baseApi}/check_team_leader/`, {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("token") || ""}`,
-          },
-        });
-        setIsTeamLeader(response.data.is_team_leader || false);
-      } catch (error) {
-        console.error("Error checking team leader status:", error);
-        setIsTeamLeader(false); // Default to false on error to avoid showing icon
-      }
-    };
+    const checkTeamLeader = async (userId) => {
+  try {
+    const response = await axios.get(`${baseApi}/user/${userId}/verify_team_leader/`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("token") || ""}`,
+      },
+    });
+
+    setIsTeamLeader(response.data.is_team_leader || false);
+  } catch (error) {
+    console.error("Error checking team leader status:", error);
+    setIsTeamLeader(false); // Default to false on error
+  }
+};
+
 
     if (storedUser.username) {
-      console.log("uername", storedUser.username)
-      checkTeamLeader();
+      console.log("username", storedUser.username)
+      checkTeamLeader(storedUser.user_id);
     }
 
     const Picons = Object.keys(storedUser.streams || {});

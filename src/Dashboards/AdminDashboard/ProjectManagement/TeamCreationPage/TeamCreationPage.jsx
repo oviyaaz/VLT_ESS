@@ -96,7 +96,7 @@ const TeamCreationPage = () => {
   };
 
   const fetchEmployeeList = async () => {
-    const { data } = await axios.get(`${apiBaseUrl}/api/employee_list/`);
+    const { data } = await axios.get(`${apiBaseUrl}/api/users_list/`);
     setEmployeeList(data || []);
   };
 
