@@ -97,6 +97,9 @@ const AddTeam = ({
       );
     }
   };
+  const filteredEmployees = EmployeeList.filter(
+  (employee) => employee.designation === "Employee"
+);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -189,9 +192,9 @@ const AddTeam = ({
                     <SelectValue placeholder="Select Team Leader" />
                   </SelectTrigger>
                   <SelectContent>
-                    {EmployeeList.map((employee) => (
+                    {filteredEmployees.map((employee) => (
                       <SelectItem
-                        key={employee.employee_id}
+                        key={employee.user_id}
                         value={employee.username}
                       >
                         {employee.username}
@@ -240,12 +243,12 @@ const AddTeam = ({
                 {TeamData.showMembersDropdown && (
                   <div className="absolute left-0 right-0 mt-2 w-full rounded-md bg-white shadow-lg border border-gray-300 z-50 max-h-60 overflow-y-auto">
                     <ul className="py-2">
-                      {EmployeeList.map((employee) => {
+                      {filteredEmployees.map((employee) => {
                         const memberName = employee.username;
                         const isChecked = TeamData.members.includes(memberName);
                         return (
                           <li
-                            key={employee.employee_id}
+                            key={employee.user_id}
                             className="px-4 py-2 flex items-center hover:bg-gray-100"
                             onClick={(e) => e.stopPropagation()} // keeps dropdown open
                           >

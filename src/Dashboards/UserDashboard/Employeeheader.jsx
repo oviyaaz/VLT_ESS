@@ -56,45 +56,45 @@ const EmployeeHeader = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(sessionStorage.getItem("userdata") || "{}");
-    console.log("Checking team leader for user_id:", storedUser.user_id);
-    console.log("user_id passed to API:", storedUser.user_id);
+  const storedUser = JSON.parse(sessionStorage.getItem("userdata") || "{}");
+  setUserData(storedUser);
 
+  const checkTeamLeader = async (userId) => {
+    try {
+      const response = await axios.get(`${baseApi}/user/${userId}/verify_team_leader/`, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("token") || ""}`,
+        },
+      });
 
-    setUserData(storedUser);
-
-    const checkTeamLeader = async (userId) => {
-  try {
-    const response = await axios.get(`${baseApi}/user/${userId}/verify_team_leader/`, {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token") || ""}`,
-      },
-    });
-
-    setIsTeamLeader(response.data.is_team_leader || false);
-  } catch (error) {
-    console.error("Error checking team leader status:", error);
-    setIsTeamLeader(false); // Default to false on error
-  }
-};
-
-
-    if (storedUser.username) {
-      console.log("username", storedUser.username)
-      checkTeamLeader(storedUser.user_id);
+      setIsTeamLeader(response.data.is_team_leader || false);
+    } catch (error) {
+      console.error("Error checking team leader status:", error);
+      setIsTeamLeader(false); // Default to false on error
     }
+  };
 
-    const Picons = Object.keys(storedUser.streams || {});
-    const filteredIcons = side_bar.filter(
-      (item) =>
-        item.name === "Dashboard" ||
-        item.name === "Logout" ||
-        (item.name === "Hire Request" && isTeamLeader) ||
-        Picons.includes(item.name)
-    );
+  if (storedUser.username) {
+    console.log("username", storedUser.username);
+    checkTeamLeader(storedUser.user_id);
+  }
+}, []); // ← runs only once on mount
 
-    setPurchasedIcons(filteredIcons);
-  }, [isTeamLeader]);
+useEffect(() => {
+  const storedUser = JSON.parse(sessionStorage.getItem("userdata") || "{}");
+
+  const Picons = Object.keys(storedUser.streams || {});
+  const filteredIcons = side_bar.filter(
+    (item) =>
+      item.name === "Dashboard" ||
+      item.name === "Logout" ||
+      (item.name === "Hire Request" && isTeamLeader) ||
+      Picons.includes(item.name)
+  );
+
+  setPurchasedIcons(filteredIcons);
+}, [isTeamLeader]); // ← updates icons only when role is known
+
 
   const HandleLogOut = async () => {
     try {

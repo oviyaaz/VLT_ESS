@@ -115,13 +115,12 @@ const EmployeeAttendanceContent = ({ setIsOpenForm }) => {
     totalHours: 0
   });
 
-  console.log("employee_id", userInfo.employee_id);
 
   useEffect(() => {
     const fetchAttendanceData = async () => {
       try {
         const response = await axios.get(
-          `${apiBaseUrl}/employee/employee-attendance-history/${userInfo.employee_id}/`
+          `${apiBaseUrl}/user/user-employee-attendance-history/${userInfo.user_id}/`
         );
 
         if (response.status === 200) {

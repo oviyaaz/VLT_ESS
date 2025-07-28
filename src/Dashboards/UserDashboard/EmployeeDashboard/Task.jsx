@@ -36,33 +36,45 @@ const Task = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get(`${apiBaseUrl}/view-my-emptask/`, {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          }
-        });
-        const tasksData = response.data.tasks || [];
-        const uniqueTasks = tasksData.reduce((acc, task) => {
-          if (!task.emptask_id || !acc.some(t => t.emptask_id === task.emptask_id)) {
-            acc.push(task);
-          }
-          return acc;
-        }, []);
-        setTasks(uniqueTasks);
+  const fetchTasks = async () => {
+    try {
+      const storedUser = JSON.parse(sessionStorage.getItem("userdata"));
+      const userId = storedUser?.user_id;
+
+      if (!userId) {
+        setError("User not logged in.");
         setLoading(false);
-      } catch (err) {
-        console.error("Error fetching tasks:", err);
-        setError("Failed to fetch tasks. Please try again.");
-        setLoading(false);
+        return;
       }
-    };
-  
-    fetchTasks();
-  }, []);
+
+      const response = await axios.get(`${apiBaseUrl}/user/${userId}/user_employee_tasks/`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+
+      const tasksData = response.data.tasks || [];
+
+      const uniqueTasks = tasksData.reduce((acc, task) => {
+        if (!task.task_id || !acc.some(t => t.task_id === task.task_id)) {
+          acc.push(task);
+        }
+        return acc;
+      }, []);
+
+      setTasks(uniqueTasks);
+      setLoading(false);
+
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+      setError("Failed to fetch tasks. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  fetchTasks();
+}, []);
 
   const getStatusBadge = (status) => {
     const baseClasses = "min-w-[100px] flex justify-center";

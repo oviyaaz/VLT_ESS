@@ -52,7 +52,7 @@ const Attendance = () => {
     const fetchStatus = async () => {
       try {
         const response = await axios.post(
-          `${apiBaseUrl}/hr/attendance/form/${userInfo.hr_id}/`
+          `${apiBaseUrl}/user/user-attendance-form/${userInfo.user_id}/`
         );
         setAlreadyCheckedOut(response.data.already_checked_out || false);
         setOnLeave(false); 
@@ -96,14 +96,14 @@ const Attendance = () => {
       }
     };
 
-    if (userInfo?.hr_id) {
+    if (userInfo?.user_id) {
       fetchStatus();
     } else {
       setMessage({ type: "error", text: "User information not found." });
       setIsLoading(false);
       setInitialLoad(false);
     }
-  }, [userInfo?.hr_id]);
+  }, [userInfo?.user_id]);
 
   //------- when login after the shift time it will automatically show leave instead of showing it while clicking the punch in button ---------
   // Adjust message reactively
@@ -143,7 +143,7 @@ const Attendance = () => {
 
     try {
       const response = await axios.post(
-        `${apiBaseUrl}/hr/attendance/form/${userInfo.hr_id}/`
+        `${apiBaseUrl}/user/user-attendance-form/${userInfo.user_id}/`
       );
       if (response.data.on_leave) {
         setMessage({
@@ -175,14 +175,14 @@ const Attendance = () => {
     try {
       const operation = attendance.firstInTime === "--:--" ? "check_in" : "check_out";
       const payload = {
-        user_id: userInfo.hr_id,
+        user_id: userInfo.user_id,
         operation,
         shift: shift.id,
         location: location,
         notes: "Attendance via dashboard clock",
       };
 
-      const response = await axios.post(`${apiBaseUrl}/hr/submit-attendance/`, payload);
+      const response = await axios.post(`${apiBaseUrl}/user/submit-user-attendance/`, payload);
       const now = new Date();
       const time = now.toLocaleTimeString("en-US", {
         hour: "2-digit",

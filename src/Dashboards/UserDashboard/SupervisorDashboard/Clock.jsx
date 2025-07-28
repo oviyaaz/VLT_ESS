@@ -52,7 +52,7 @@ const Clock = () => {
     const fetchStatus = async () => {
       try {
         const response = await axios.post(
-          `${apiBaseUrl}/supervisor/attendance/form/${userInfo.supervisor_id}/`
+          `${apiBaseUrl}/user/user-attendance-form/${userInfo.user_id}/`
         );
 
         setAlreadyCheckedOut(response.data.already_checked_out || false);
@@ -89,14 +89,14 @@ const Clock = () => {
       }
     };
 
-    if (userInfo?.supervisor_id) {
+    if (userInfo?.user_id) {
       fetchStatus();
     } else {
       setMessage({ type: "error", text: "User information not found." });
       setIsLoading(false);
       setInitialLoad(false);
     }
-  }, [userInfo?.supervisor_id]);
+  }, [userInfo?.user_id]);
 
   // Adjust message reactively
   useEffect(() => {
@@ -148,14 +148,14 @@ const Clock = () => {
     try {
       const operation = attendance.firstInTime === "--:--" ? "check_in" : "check_out";
       const payload = {
-        user_id: userInfo.supervisor_id,
+        user_id: userInfo.user_id,
         operation,
         shift: shift.id,
         location: location,
         notes: "Attendance via dashboard clock",
       };
 
-      const response = await axios.post(`${apiBaseUrl}/supervisor/submit-attendance/`, payload);
+      const response = await axios.post(`${apiBaseUrl}/user/submit-user-attendance/`, payload);
       const now = new Date();
       const time = now.toLocaleTimeString("en-US", {
         hour: "2-digit",

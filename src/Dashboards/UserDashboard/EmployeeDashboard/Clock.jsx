@@ -47,47 +47,47 @@ const Clock = () => {
   }, []);
 
   useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const response = await axios.post(
-          `${apiBaseUrl}/employee/attendance/form/${userinfo.employee_id}/`
-        );
-        setAlreadyCheckedOut(response.data.already_checked_out || false);
-        setOnLeave(false);
-        setShift(response.data.shift || null);
-        setLocation(response.data.locations?.[0]?.location_name || null);
+  const fetchStatus = async () => {
+    try {
+      const response = await axios.post(
+        `${apiBaseUrl}/user/user-attendance-form/${userinfo.user_id}/`
+      );
+      setAlreadyCheckedOut(response.data.already_checked_out || false);
+      setOnLeave(response.data.on_leave || false);
+      setShift(response.data.shift || null);
+      setLocation(response.data.locations?.[0]?.location_name || null);
 
-        setAttendance({
-          firstInTime: response.data.first_in_time || "--:--",
-          lastOutTime: response.data.last_out_time || "--:--",
+      setAttendance({
+        firstInTime: response.data.first_in_time || "--:--",
+        lastOutTime: response.data.last_out_time || "--:--",
+      });
+
+      if (response.data.already_checked_out) {
+        setMessage({
+          type: "error",
+          text: "You have already punched out for today.",
         });
-
-        if (response.data.already_checked_out) {
-          setMessage({
-            type: "error",
-            text: "You have already punched out for today.",
-          });
-        } else {
-          setMessage({ type: "", text: "" });
-        }
-
-        setIsLoading(false);
-        setInitialLoad(false);
-      } catch (error) {
-        setMessage({ type: "error", text: "Failed to fetch attendance status." });
-        setIsLoading(false);
-        setInitialLoad(false);
+      } else {
+        setMessage({ type: "", text: "" });
       }
-    };
 
-    if (userinfo?.employee_id) {
-      fetchStatus();
-    } else {
-      setMessage({ type: "error", text: "User information not found." });
+      setIsLoading(false);
+      setInitialLoad(false);
+    } catch (error) {
+      setMessage({ type: "error", text: "Failed to fetch attendance status." });
       setIsLoading(false);
       setInitialLoad(false);
     }
-  }, [userinfo?.employee_id]);
+  };
+
+  if (userinfo?.user_id) {
+    fetchStatus();
+  } else {
+    setMessage({ type: "error", text: "User information not found." });
+    setIsLoading(false);
+    setInitialLoad(false);
+  }
+}, [userinfo?.user_id]);
 
   useEffect(() => {
     if (initialLoad) return;
@@ -106,7 +106,7 @@ const Clock = () => {
 
     try {
       const response = await axios.post(
-        `${apiBaseUrl}/employee/attendance/form/${userinfo.employee_id}/`
+        `${apiBaseUrl}/user/user-attendance-form/${userinfo.user_id}/`
       );
       if (response.data.on_leave) {
         setMessage({
@@ -137,14 +137,14 @@ const Clock = () => {
     try {
       const operation = attendance.firstInTime === "--:--" ? "check_in" : "check_out";
       const payload = {
-        user_id: userinfo.employee_id,
+        user_id: userinfo.user_id,
         operation,
         shift: shift.id,
         location: location,
         notes: "Attendance via dashboard clock",
       };
 
-      const response = await axios.post(`${apiBaseUrl}/employee/submit-attendance/`, payload);
+      const response = await axios.post(`${apiBaseUrl}/user/submit-user-attendance/`, payload);
       const now = new Date();
       const time = now.toLocaleTimeString("en-US", {
         hour: "2-digit",
