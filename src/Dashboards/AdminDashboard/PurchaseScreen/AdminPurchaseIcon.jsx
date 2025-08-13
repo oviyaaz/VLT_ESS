@@ -38,15 +38,30 @@ const AdminPurchaseIcon = () => {
     useEffect(() => {
         const fetchFeatures = async () => {
             setIsLoading(true);
-            setPurchasedFeatures([]); // Reset to avoid stale data
-            setSelectedFeatures([]); // Reset to avoid stale selections
+            setPurchasedFeatures([]);
+            setSelectedFeatures([]);
+
             try {
-                if (userInfo?.user_id) {
-                    const response = await axios.get(`${baseApi}/api/admin/${userInfo.user_id}/features/`);
-                    setPurchasedFeatures(response.data.features || []);
+                // Use userInfo.id instead of userInfo.user_id
+                const userId = userInfo?.id || userInfo?.user_id;
+
+                if (!userId) {
+                    console.error("No user ID found in session");
+                    setIsLoading(false);
+                    return;
                 }
+
+                console.log("Fetching features for user ID:", userId);
+                console.log("Full userInfo object:", userInfo);
+                console.log("userInfo.id:", userInfo?.id);
+                console.log("userInfo.user_id:", userInfo?.user_id);
+
+                const response = await axios.get(`${baseApi}/api/admin/${userId}/features/`);
+                setPurchasedFeatures(response.data.features || []);
+
             } catch (error) {
                 console.error("Error fetching features:", error);
+                console.error("Error response:", error.response?.data);
                 setPurchasedFeatures([]);
             } finally {
                 setIsLoading(false);
@@ -54,79 +69,84 @@ const AdminPurchaseIcon = () => {
         };
 
         fetchFeatures();
-    }, [userInfo?.user_id]);
+    }, [userInfo?.id, userInfo?.user_id]);
 
     const side_bar = [
         {
-            link: "/admin/user",
+            link: "/superadmin/user",
             name: "User Dashboard",
             icon: <Users size={20} />,
         },
         {
-            link: "/admin/manager",
-            name: "Manager Dashboard",
-            icon: <Users size={20} />,
-        },
-        {
-            link: "/admin/hr-management",
-            name: "HR-Management",
-            icon: <Users size={20} />,
-        },
-        {
-            link: "/admin/employee",
-            name: "Employment Management",
-            icon: <Users size={20} />,
-        },
-        {
-            link: "/admin/supervisor",
-            name: "Supervisor Management",
-            icon: <Users size={20} />,
-        },
-        {
-            link: "helpdesk",
-            name: "Help Desk",
-            icon: <HelpingHand size={20} />,
-        },
-        {
-            link: "/admin/projectManagement",
-            name: "Project Management",
-            icon: <File size={20} />,
-        },
-        {
-            link: "/admin/kpi-employee",
-            name: "KPI Employee",
-            icon: <Users2 size={20} />,
-        },
-        {
-            link: "/admin/training-programs",
-            name: "Training & Development",
-            icon: <Users2 size={20} />,
-        },
-        {
-            link: "/admin/kpi-manager",
-            name: "KPI Manager",
-            icon: <Users2 size={20} />,
-        },
-        {
-            link: "/admin/feedback",
-            name: "FeedBack",
-            icon: <MessageCircle size={20} />,
-        },
-        {
-            link: "/admin/other",
-            name: "Others",
-            icon: <Users size={20} />,
-        },
-        {
-            link: "inventory",
-            name: "Inventory",
-            icon: <Package size={20} />,
-        },
-        {
-            link: "account-management",
-            name: "Account Management",
-            icon: <Users size={20} />,
-        },
+            link: "/user/hr",
+            name: "HRMS",
+            icon: <Users size={20} />
+        }
+        // {
+        //     link: "/admin/manager",
+        //     name: "Manager Dashboard",
+        //     icon: <Users size={20} />,
+        // },
+        // {
+        //     link: "/admin/hr-management",
+        //     name: "HR-Management",
+        //     icon: <Users size={20} />,
+        // },
+        // {
+        //     link: "/admin/employee",
+        //     name: "Employment Management",
+        //     icon: <Users size={20} />,
+        // },
+        // {
+        //     link: "/admin/supervisor",
+        //     name: "Supervisor Management",
+        //     icon: <Users size={20} />,
+        // },
+        // {
+        //     link: "helpdesk",
+        //     name: "Help Desk",
+        //     icon: <HelpingHand size={20} />,
+        // },
+        // {
+        //     link: "/admin/projectManagement",
+        //     name: "Project Management",
+        //     icon: <File size={20} />,
+        // },
+        // {
+        //     link: "/admin/kpi-employee",
+        //     name: "KPI Employee",
+        //     icon: <Users2 size={20} />,
+        // },
+        // {
+        //     link: "/admin/training-programs",
+        //     name: "Training & Development",
+        //     icon: <Users2 size={20} />,
+        // },
+        // {
+        //     link: "/admin/kpi-manager",
+        //     name: "KPI Manager",
+        //     icon: <Users2 size={20} />,
+        // },
+        // {
+        //     link: "/admin/feedback",
+        //     name: "FeedBack",
+        //     icon: <MessageCircle size={20} />,
+        // },
+        // {
+        //     link: "/admin/other",
+        //     name: "Others",
+        //     icon: <Users size={20} />,
+        // },
+        // {
+        //     link: "inventory",
+        //     name: "Inventory",
+        //     icon: <Package size={20} />,
+        // },
+        // {
+        //     link: "account-management",
+        //     name: "Account Management",
+        //     icon: <Users size={20} />,
+        // },
     ];
 
     const handlePurchaseFeature = (featureName) => {
@@ -148,11 +168,27 @@ const AdminPurchaseIcon = () => {
 
     const handlePurchaseAll = async () => {
         try {
-            await axios.patch(`${baseApi}/api/admin/${userInfo?.user_id}/features/update/`, { features: [...purchasedFeatures, ...selectedFeatures] });
-            console.log("Purchasing all selected features:", selectedFeatures);
-            navigate("/admin");
+            const userId = userInfo?.id || userInfo?.user_id;
+            console.log(userId, userInfo?.id, userInfo?.user_id)
+
+            if (!userId) {
+                console.error("No user ID available for purchase");
+                return;
+            }
+
+            console.log("Purchasing features for user ID:", userId);
+
+            await axios.patch(
+                `${baseApi}/api/admin/${userInfo?.user_id}/features/update/`,
+                { features: [...purchasedFeatures, ...selectedFeatures] }
+            );
+
+            console.log("Purchasing all selected features:", selectedFeatures, userId, baseApi);
+            navigate("/superadmin");
+
         } catch (error) {
             console.error("Error purchasing features:", error);
+            alert("Failed to purchase features. Please try again.");
         }
     };
 
@@ -193,11 +229,10 @@ const AdminPurchaseIcon = () => {
                             </div>
                         )}
                         <div
-                            className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 w-40 h-40 flex flex-col justify-between items-center ${
-                                isFeatureSelected(item.name) && !isFeaturePurchased(item.name)
+                            className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 w-40 h-40 flex flex-col justify-between items-center ${isFeatureSelected(item.name) && !isFeaturePurchased(item.name)
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-gray-200 bg-white hover:border-gray-300'
-                            }`}
+                                }`}
                         >
                             <div className="flex flex-col items-center">
                                 <div className="bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center mb-2">
@@ -217,11 +252,10 @@ const AdminPurchaseIcon = () => {
                                     </button>
                                 ) : (
                                     <button
-                                        className={`${
-                                            isFeatureSelected(item.name)
+                                        className={`${isFeatureSelected(item.name)
                                                 ? 'bg-red-500 hover:bg-red-600'
                                                 : 'bg-blue-500 hover:bg-blue-600'
-                                        } text-white px-4 py-1 rounded text-xs font-medium transition-colors`}
+                                            } text-white px-4 py-1 rounded text-xs font-medium transition-colors`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isFeatureSelected(item.name)) {

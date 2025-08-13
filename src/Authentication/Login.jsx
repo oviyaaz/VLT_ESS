@@ -293,7 +293,7 @@
 //         data.employees.find((u) => u.employee_id === loginUser.user_id) ||
 //         data.supervisors.find((u) => u.supervisor_id === loginUser.user_id)
 //       );
-      
+
 //     } catch (error) {
 //       console.error("Error fetching user details:", error);
 //       toast.error("Error fetching user details. Please try again later.");
@@ -564,7 +564,6 @@
 //   );
 // };
 
-
 // import { toast } from "react-toastify";
 // import { useState, useContext } from "react";
 // import {
@@ -820,7 +819,6 @@
 //   );
 // }
 
-
 import { useState } from "react";
 import { Eye, EyeOff, Lock, User, Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -854,6 +852,24 @@ export default function LoginForm() {
       });
       const data = await res.json();
 
+      if (loginUser.designation?.toLowerCase() === "superadmin") {
+        // For superadmin, check if they exist in superadmins array, or return basic user info
+        const superadmin = data.superadmins?.find(
+          (u) => u.user_id === loginUser.user_id,
+        );
+        if (superadmin) {
+          return superadmin;
+        }
+
+        // If no superadmins array or user not found, create a basic user object
+        return {
+          user_id: loginUser.user_id,
+          username: loginUser.user_id, // fallback to user_id as username
+          designation: loginUser.designation,
+          role: "superadmin",
+        };
+      }
+
       return (
         data.admins.find((u) => u.user_id === loginUser.user_id) ||
         data.managers.find((u) => u.manager_id === loginUser.user_id) ||
@@ -861,7 +877,6 @@ export default function LoginForm() {
         data.employees.find((u) => u.user_id === loginUser.user_id) ||
         data.supervisors.find((u) => u.user_id === loginUser.user_id)
       );
-      
     } catch (error) {
       console.error("Error fetching user details:", error);
       toast.error("Error fetching user details. Please try again later.");
@@ -870,71 +885,74 @@ export default function LoginForm() {
   };
 
   const onSubmit = async (data) => {
-  setLoading(true);
+    setLoading(true);
 
-  const payload = {
-    username: data.username,
-    user_id: data.user_id,
-    password: data.password,
-  };
+    const payload = {
+      username: data.username,
+      user_id: data.user_id,
+      password: data.password,
+    };
 
-  try {
-    const res = await fetch(`${apiBaseUrl}/user/common_login/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      credentials: "include",
-    });
+    try {
+      const res = await fetch(`${apiBaseUrl}/user/common_login/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        credentials: "include",
+      });
 
-    if (!res.ok) {
-      throw new Error("Login failed");
-    }
+      if (!res.ok) {
+        throw new Error("Login failed");
+      }
 
-    const loginUser = await res.json();
-    console.log("Login response:", loginUser);
+      const loginUser = await res.json();
+      console.log("Login response:", loginUser);
 
-    if (loginUser && loginUser.designation) {
-      sessionStorage.setItem("loginUser", JSON.stringify(loginUser));
-      console.log("llll", loginUser.user_id);
-      const user = await fetchDetails(loginUser);
+      if (loginUser && loginUser.designation) {
+        sessionStorage.setItem("loginUser", JSON.stringify(loginUser));
+        console.log("llll", loginUser.user_id, loginUser);
+        const user = await fetchDetails(loginUser);
 
-      if (user) {
-        sessionStorage.setItem("userdata", JSON.stringify(user));
+        if (user) {
+          sessionStorage.setItem("userdata", JSON.stringify(user));
 
-        // Navigate based on role or designation
-        const routes = {
-          admin: "/admin",
-          hr: "/user/hr",
-          manager: "/manager",
-          employee: "/user/employee",
-          supervisor: "/user/supervisor",
-        };
+          // Navigate based on role or designation
+          const routes = {
+            admin: "/admin",
+            superadmin: "/superadmin",
+            hr: "/user/hr",
+            manager: "/manager",
+            employee: "/user/employee",
+            supervisor: "/user/supervisor",
+          };
 
-        const roleKey = loginUser.role?.toLowerCase();
-        const designationKey = loginUser.designation?.toLowerCase().replace(/\s+/g, '');
-        const route = routes[roleKey] || routes[designationKey];
+          const roleKey = loginUser.role?.toLowerCase();
+          const designationKey = loginUser.designation
+            ?.toLowerCase()
+            .replace(/\s+/g, "");
+          const route = routes[roleKey] || routes[designationKey];
 
-        if (route) {
-          router(route);
-          toast.success(`Welcome Back ${data.username} 👋`);
+          if (route) {
+            router(route);
+            toast.success(`Welcome Back ${data.username} 👋`);
+          } else {
+            toast.error("Role not recognized. Please contact support.");
+          }
         } else {
-          toast.error("Role not recognized. Please contact support.");
+          throw new Error("Invalid credentials or no role");
         }
       } else {
-        throw new Error("Invalid credentials or no role");
+        throw new Error("Invalid credentials or no designation");
       }
-    } else {
-      throw new Error("Invalid credentials or no designation");
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Login error:", error);
-    toast.error("Login failed. Please check your credentials.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="flex overflow-clip min-h-screen">

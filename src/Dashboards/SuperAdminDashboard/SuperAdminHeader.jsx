@@ -41,46 +41,46 @@ const side_bar = [
     name: "Managers",
     icon: <Users />,
   },
-  // {
-  //   link: "/admin/hr-management",
-  //   name: "HR-Management",
-  //   icon: <Users />,
-  // },
+  {
+    link: "/admin/hr-management",
+    name: "HR-Management",
+    icon: <Users />,
+  },
   //{
   // link: "/admin/ar-management",
   //  name: "AR-Management",
   // icon: <Users />,
   // },
-  // {
-  //   link: "/admin/employee",
-  //   name: "Employee Management",
-  //   icon: <Users />,
-  // },
-  // {
-  //   link: "helpdesk",
-  //   name: "Help Desk",
-  //   icon: <HelpingHand />,
-  // },
+  {
+    link: "/admin/employee",
+    name: "Employee Management",
+    icon: <Users />,
+  },
+  {
+    link: "helpdesk",
+    name: "Help Desk",
+    icon: <HelpingHand />,
+  },
   // {
   //   link: "/admin/supervisor",
   //   name: "Supervisor Management",
   //   icon: <Users />,
   // },
-  // {
-  //   link: "/admin/projectManagement",
-  //   name: "Project Management",
-  //   icon: <File />,
-  // },
-  // {
-  //   link: "/admin/kpi-employee",
-  //   name: "KPI Employee",
-  //   icon: <Users2 />,
-  // },
-  // {
-  //   link: "/admin/training-programs",
-  //   name: "Training & Development",
-  //   icon: <Users2 />,
-  // },
+  {
+    link: "/admin/projectManagement",
+    name: "Project Management",
+    icon: <File />,
+  },
+  {
+    link: "/admin/kpi-employee",
+    name: "KPI Employee",
+    icon: <Users2 />,
+  },
+  {
+    link: "/admin/training-programs",
+    name: "Training & Development",
+    icon: <Users2 />,
+  },
   {
     link: "/admin/kpi-manager",
     name: "KPI Manager",
@@ -114,7 +114,7 @@ const side_bar = [
 ];
 
 
-const Adminheader = () => {
+const SuperAdminHeader = () => {
   const [isOpenSidebar, setIsOpenSidebar] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -214,4 +214,4 @@ const Adminheader = () => {
   );
 };
 
-export default Adminheader;
+export default SuperAdminHeader;
